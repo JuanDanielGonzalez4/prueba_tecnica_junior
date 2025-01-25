@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ProductRequest;
 
 
@@ -21,17 +22,38 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductRequest $request)
+    public function store(Request $request)
     {
         
+        $rules = [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0.01',
+            'quantity' => 'required|integer',
+        ];
+    
+        $messages = [
+            'name.required' => 'The product name is required.',
+            'price.min' => 'The price must be greather than 0',
+            'quantity.integer' => 'The quantity must be a valid integer',
+        ];
+    
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422); 
+        }
+    
         $product = new Product();
         $product->name = $request->name;
         $product->description = $request->description;
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->save();
-
-        return response()->json(['message' => 'Product created'], 201);
+    
+        return response()->json(['message' => 'Product created successfully'], 201);
     }
 
     /**
