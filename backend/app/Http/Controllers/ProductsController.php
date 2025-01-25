@@ -53,7 +53,7 @@ class ProductsController extends Controller
         $product->quantity = $request->quantity;
         $product->save();
     
-        return response()->json(['message' => 'Product created successfully'], 201);
+        return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
     }
 
     /**
